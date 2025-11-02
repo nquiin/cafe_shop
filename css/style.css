@@ -68,7 +68,7 @@ a:hover {
 }
 
 #menu {
-  width: 33.33%;
+  width: 200px;
   background-color: #eee;
   padding: 20px;
   border-radius: 8px;
@@ -104,7 +104,7 @@ a:hover {
 }
 
 #main {
-  width: 66.67%;
+  width: 80%;
   background: white;
   padding: 20px;
   border-radius: 8px;
@@ -117,21 +117,25 @@ a:hover {
   padding-bottom: 10px;
   margin-bottom: 20px;
 }
-
 .product-list {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  width: 1000px;
   gap: 20px;
 }
 
 .product {
   background: #fafafa;
+  width: 280px;
+  margin-left: 10px;
+  height: 280px;
   padding: 15px;
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
   transition: all 0.2s;
 }
+
 
 .product:hover {
   transform: translateY(-5px);

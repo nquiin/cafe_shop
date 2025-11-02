@@ -1,5 +1,5 @@
 <?php
-include "../auth.php";
+include "../connect.php";
 $obj = new Product();
 $listSP = $obj->list_san_pham();
 ?>
@@ -15,7 +15,7 @@ $listSP = $obj->list_san_pham();
   <div id="container">
       <div id="header">
             <header>
-                <h1>☕ cafeshop</h1>
+                <h1> Cafeshop</h1>
                 <p>cafeshop lớp đốp có người iu </p>
             </header>
             <nav class="nav-bar">
@@ -41,7 +41,7 @@ $listSP = $obj->list_san_pham();
             <div class="product-list">
                <?php while($row = $listSP->fetch_assoc()){ ?>
                 <div class="product">
-                    <img src="<?=$row['HinhAnh']?>" alt="<?=$row['TenSP']?>">
+                    <img src="../<?=$row['HinhAnh']?>" alt="<?=$row['TenSP']?>">
                     <h3><?=$row['TenSP']?></h3>
                     <p>Giá: <?=$row['Gia']?> VND</p>
                     

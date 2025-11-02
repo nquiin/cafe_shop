@@ -9,7 +9,7 @@
     <div class="auth-page">
         <div class="auth-container">
             <h2>Đăng ký tài khoản</h2>
-            <form method="POST" action="auth.php">
+            <form method="POST" action="../connect.php">
                 <input type="hidden" name="action" value="register">
 
                 <div class="form-group auth-box">

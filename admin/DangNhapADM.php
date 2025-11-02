@@ -4,17 +4,16 @@ ob_start();
 include "../auth.php";
 
 $txt_error = "";
+$obj = new QL();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'login') {
-    $TenDangNhap = trim($_POST['TenDangNhap']);
-    $MatKhau = trim($_POST['MatKhau']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
+    $TenDangNhap = $_POST['TenDangNhap'] ?? '';
+    $MatKhau = $_POST['MatKhau'] ?? '';
 
-    $obj = new QL();
     $login = $obj->loginAdmin($TenDangNhap, $MatKhau);
 
     if ($login) {
         $_SESSION['admin'] = ['username' => $TenDangNhap,'role' => $login['Quyen'] ?? 'admin'];
-
         header("Location: QLindex.php");
         exit();
     } else {
@@ -24,12 +23,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
 ?>
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập Admin</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="auth-page">
         <div class="auth-container">
@@ -49,4 +50,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
         </div>
     </div>
 </body>
+
 </html>

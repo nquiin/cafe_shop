@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -11,7 +14,7 @@
         <div class="auth-container">
             <h2>Đăng nhập</h2>
             <div class="auth-box">
-                <form method="POST" action="/ltweb/tieuluan_ltrinhweb/auth.php">
+                <form method="POST" action="../connect.php">
                     <input type="hidden" name="action" value="login">
                     <div class="form-group">
                         <input type="text" name="TenKH" placeholder="Tên đăng nhập" required>

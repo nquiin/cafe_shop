@@ -1,5 +1,5 @@
 <?php
-require '../auth.php';
+require '../connect.php';
 $db = new DBUser();
 $db->checkLogin();
 $user = $db->getCurrentUser();
@@ -50,7 +50,7 @@ $error = $db->handleUpdateProfile();
                 <div class="form-group">
                     <label>Avatar</label><br>
                     <?php if (!empty($user['Avatar'])): ?>
-                        <img src="Uploads/<?php echo htmlspecialchars($user['Avatar']); ?>" width="100" alt="Avatar"><br><br>
+                        <img src="../Uploads/<?php echo htmlspecialchars($user['Avatar']); ?>" width="100" alt="Avatar"><br><br>
                     <?php endif; ?>
                     <input type="file" name="avatar" accept="image/*">
                 </div>
