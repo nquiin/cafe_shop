@@ -10,6 +10,6 @@ if (isset($_SESSION['admin_name'])):
     </div>
 <?php endif; ?>
     <div class="logout">
-        <a href="DangXuat.php">Đăng xuất</a>
+        <a href="QLindex.php?key=DangXuat">Đăng xuất</a>
     </div>
 </header>

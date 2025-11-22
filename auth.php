@@ -30,21 +30,27 @@ class QL{
         return $recordset;
     }
     function List_SP_Theo_Loai($MaLSP) {
-    $sql = "SELECT * FROM san_pham WHERE MaLoai = ?";
-    $stmt = $this->db->prepare($sql);
-    $stmt->bind_param("i", $MaLSP);
-    $stmt->execute();
-    return $stmt->get_result();
-}
+        $sql = "SELECT * FROM san_pham WHERE MaLoai = $MaLSP";
+        return $this->db->query($sql);
+    }
 function Lay_Ten_LSP($MaLSP) {
-    $sql = "SELECT TenLoai FROM loai_san_pham WHERE MaLoai = ?";
-    $stmt = $this->db->prepare($sql);
-    $stmt->bind_param("i", $MaLSP);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    return $row ? $row['TenLoai'] : "Không xác định";
-}
+        $sql = "SELECT TenLoai FROM loai_san_pham WHERE MaLoai = $MaLSP";
+        $res = $this->db->query($sql);
+        $row = $res->fetch_assoc();
+        return $row ? $row['TenLoai'] : "Không xác định";
+    }
+    function Get_SP_By_MaSP($MaSP){
+        $sql="SELECT * FROM san_pham WHERE MaSP=$MaSP";
+        $res=$this->db->query($sql);
+        return $res->fetch_assoc();
+
+    }
+    function  Get_LoaiSP_By_MaLoai($MaLoai){
+        $sql = "SELECT * FROM loai_san_pham WHERE MaLoai = ?";
+        $res = $this->db->query($sql);
+        return $res->fetch_assoc();
+  
+    }
   function AddProduct($TenSP, $Gia, $MoTa, $SoLuongTon, $MaLoai, $file){
         $HinhAnh = "";
 
@@ -64,21 +70,16 @@ function Lay_Ten_LSP($MaLSP) {
                 if (move_uploaded_file($file["tmp_name"], $target_file)) {
                     $HinhAnh = $file_name;
                 } else {
-                    die("⚠ Lỗi khi tải ảnh lên!");
+                    die(" Lỗi khi tải ảnh lên!");
                 }
             } else {
-                die("⚠ Định dạng ảnh không hợp lệ (chỉ JPG, JPEG, PNG, GIF)!");
+                die(" Định dạng ảnh không hợp lệ (chỉ JPG, JPEG, PNG, GIF)!");
             }
         }
 
-        // Thêm vào database
-        $stmt = $this->db->prepare("INSERT INTO san_pham (TenSP, Gia, HinhAnh, MoTa, SoLuongTon, MaLoai)
-                                    VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sdssii", $TenSP, $Gia, $HinhAnh, $MoTa, $SoLuongTon, $MaLoai);
-
-        $result = $stmt->execute();
-        $stmt->close();
-        return $result;
+       $sql = "INSERT INTO san_pham (TenSP, Gia, HinhAnh, MoTa, SoLuongTon, MaLoai)
+                VALUES ('$TenSP', '$Gia', '$HinhAnh', '$MoTa', '$SoLuongTon', '$MaLoai')";
+        return $this->db->query($sql);
     }
     function UPDATE_SP_QL($TenSP,$Gia,$HinhAnh,$MaSP){
         $sql="UPDATE san_pham SET TenSP='$TenSP',Gia='$Gia',HinhAnh='$HinhAnh' WHERE MaSP=$MaSP";
@@ -111,52 +112,33 @@ function Lay_Ten_LSP($MaLSP) {
         $this->db->query($sql);
     }
     function UPDATE_SP_FULL($MaSP, $TenSP, $Gia, $MoTa, $HinhAnh, $SoLuongTon, $MaLoai) {
-    $stmt = $this->db->prepare("UPDATE san_pham 
-        SET TenSP = ?, Gia = ?, MoTa = ?, HinhAnh = ?, SoLuongTon = ?, MaLoai = ? 
-        WHERE MaSP = ?");
-    $stmt->bind_param("sdssiii", $TenSP, $Gia, $MoTa, $HinhAnh, $SoLuongTon, $MaLoai, $MaSP);
-    $ok = $stmt->execute();
-    $stmt->close();
-    return $ok;
-}
+        $sql = "UPDATE san_pham 
+                SET TenSP='$TenSP', Gia='$Gia', MoTa='$MoTa', HinhAnh='$HinhAnh', SoLuongTon='$SoLuongTon', MaLoai='$MaLoai'
+                WHERE MaSP='$MaSP'";
+        return $this->db->query($sql);
+    }
 
     function DELETE_SP_QL($MaSP) {
-        $stmt = $this->db->prepare("DELETE FROM san_pham WHERE MaSP = ?");
-        $stmt->bind_param("i", $MaSP);
-        $result = $stmt->execute();
-        $stmt->close();
-        return $result;
+        return $this->db->query("DELETE FROM san_pham WHERE MaSP = $MaSP");
     }
     public function List_LoaiSP() {
     return $this->db->query("SELECT * FROM loai_san_pham ORDER BY MaLoai ASC");
 }
-public function Add_LoaiSP($TenLoai) {
-    $stmt = $this->db->prepare("INSERT INTO loai_san_pham (TenLoai) VALUES (?)");
-    $stmt->bind_param("s", $TenLoai);
-    $ok = $stmt->execute();
-    $stmt->close();
-    return $ok;
-}
-public function List_KhachHang() {
+    function Add_LoaiSP($TenLoai) {
+        return $this->db->query("INSERT INTO loai_san_pham (TenLoai) VALUES ('$TenLoai')");
+    }
+    function List_KhachHang() {
         return $this->db->query("SELECT * FROM khach_hang ORDER BY MaKH ASC");
     }
 
-public function Update_LoaiSP($MaLoai, $TenLoai) {
-    $stmt = $this->db->prepare("UPDATE loai_san_pham SET TenLoai = ? WHERE MaLoai = ?");
-    $stmt->bind_param("si", $TenLoai, $MaLoai);
-    $ok = $stmt->execute();
-    $stmt->close();
-    return $ok;
-}
+    function Update_LoaiSP($MaLoai, $TenLoai) {
+        return $this->db->query("UPDATE loai_san_pham SET TenLoai='$TenLoai' WHERE MaLoai=$MaLoai");
+    }
 
-public function Delete_LoaiSP($MaLoai) {
-    $stmt = $this->db->prepare("DELETE FROM loai_san_pham WHERE MaLoai = ?");
-    $stmt->bind_param("i", $MaLoai);
-    $ok = $stmt->execute();
-    $stmt->close();
-    return $ok;
-}
-function loginAdmin($TenDangNhap, $MatKhau) {
+    function Delete_LoaiSP($MaLoai) {
+        return $this->db->query("DELETE FROM loai_san_pham WHERE MaLoai=$MaLoai");
+    }
+    function loginAdmin($TenDangNhap, $MatKhau) {
         $TenDangNhap = $this->db->real_escape_string($TenDangNhap);
         $sql = "SELECT * FROM admin WHERE TenDangNhap = '$TenDangNhap'";
         $result = $this->db->query($sql);
@@ -174,7 +156,7 @@ function loginAdmin($TenDangNhap, $MatKhau) {
         return false;
     }
 
-    public function checkAdminLogin() {
+        function checkAdminLogin() {
         if (!isset($_SESSION['admin_id'])) {
             header("Location:QLindex.php");
             exit();
@@ -186,12 +168,12 @@ function loginAdmin($TenDangNhap, $MatKhau) {
             $recordset = $this->db->query($sql);
             return $recordset;
     }
-
+    //Quên mk
     function updatePassword($TenDangNhap, $MatKhauMoi) {
         $TenDangNhap = $this->db->real_escape_string($TenDangNhap);
         $MatKhauMoi = $this->db->real_escape_string($MatKhauMoi);
     
-        $sql_check = "SELECT * FROM admin WHERE TenDangNhap = '$TenDangNhap'";
+        $sql_check = "SELECT * FROM khach_hang WHERE TenDangNhap = '$TenDangNhap'";
         $result = $this->db->query($sql_check);
     
         if ($result && $result->num_rows > 0) {
@@ -200,7 +182,90 @@ function loginAdmin($TenDangNhap, $MatKhau) {
         }
         return false;
     }
+    function Check_Email_Admin($Email) {
+        $sql = "SELECT * FROM khach_hang WHERE Email='$Email'";
+        $res = $this->db->query($sql);
+        return $res->fetch_assoc() ?: false;
+    }
+    
+    public function Update_Password_By_Email($Email, $MatKhauMoi) {    
+        $sql = "UPDATE khach_hang SET MatKhau='$MatKhauMoi' WHERE Email='$Email'";
+        return $this->db->query($sql);
+    }
+    
+
+    function Add_KH($TenKH, $Email, $DiaChi, $SoDienThoai) {
+        $sql = "INSERT INTO khach_hang (TenKH, Email, DiaChi, SoDienThoai, NgayDangKi)
+                VALUES ('$TenKH','$Email','$DiaChi','$SoDienThoai',NOW())";
+        return $this->db->query($sql);
+    }
+
+     function Update_KH($MaKH, $TenKH, $Email, $DiaChi, $SoDienThoai) {
+        $sql = "UPDATE khach_hang 
+                SET TenKH='$TenKH', Email='$Email', DiaChi='$DiaChi', SoDienThoai='$SoDienThoai'
+                WHERE MaKH='$MaKH'";
+        return $this->db->query($sql);
+    }
+
+
+     function Delete_KH($MaKH) {
+        return $this->db->query("DELETE FROM khach_hang WHERE MaKH=$MaKH");
+    }
+
+    function Get_KH($MaKH) {
+        $res = $this->db->query("SELECT * FROM khach_hang WHERE MaKH=$MaKH");
+        return $res->fetch_assoc();
+    }
+
+     function Add_DonHang($MaKH = null, $TongTien = 0, $phuong_thuc_thanh_toan) {
+        $sql = "INSERT INTO don_hang (MaKH, TongTien, phuong_thuc_thanh_toan) 
+                VALUES ('$MaKH', '$TongTien', '$phuong_thuc_thanh_toan')";
+        $ok = $this->db->query($sql);
+        return $ok ? $this->db->insert_id : false;
+    }
+
+    function List_DonHang() {
+    return $this->db->query("SELECT d.*, k.TenKH FROM don_hang d LEFT JOIN khach_hang k ON d.MaKH = k.MaKH ORDER BY NgayDat DESC");
+    }
+
+     function Get_DonHang($MaDH) {
+        $res = $this->db->query("SELECT * FROM don_hang WHERE MaDH=$MaDH");
+        return $res->fetch_assoc();
+    }
+
+   function Update_DonHang($MaDH, $TongTien, $phuong_thuc_thanh_toan) {
+        return $this->db->query("
+            UPDATE don_hang 
+            SET TongTien='$TongTien', phuong_thuc_thanh_toan='$phuong_thuc_thanh_toan'
+            WHERE MaDH=$MaDH
+        ");
+    }
+
+    function Delete_DonHang($MaDH) {
+        return $this->db->query("DELETE FROM don_hang WHERE MaDH=$MaDH");
+    }
+
+    function Add_CTDH($MaDH, $MaSP, $SoLuong, $DonGia) {
+        return $this->db->query("
+            INSERT INTO chi_tiet_don_hang (MaDH, MaSP, SoLuong, DonGia)
+            VALUES ('$MaDH', '$MaSP', '$SoLuong', '$DonGia')
+        ");
+    }
+
+     function List_CTDH_ByMaDH($MaDH) {
+        return $this->db->query("
+            SELECT c.*, p.TenSP
+            FROM chi_tiet_dh c
+            LEFT JOIN san_pham p ON c.MaSP = p.MaSP
+            WHERE c.MaDH = $MaDH
+        ");
+    }
+     function Delete_CTDH($MaCT) {
+        return $this->db->query("DELETE FROM chi_tiet_don_hang WHERE MaCT=$MaCT");
+    }
+
 }
+
 class Product{
     public $host="localhost";
     public $username="root";
@@ -229,5 +294,47 @@ class Product{
         $recordset=$this->db->query($sql);
         return $recordset;
     }
+    function GetDonHang($tungay, $denngay) {
+    $sql = "
+        SELECT 
+            kh.TenKH,
+            kh.MaKH,
+            dh.MaDH,
+            dh.phuong_thuc_thanh_toan,
+            sp.TenSP,
+            ct.SoLuong,
+            ct.DonGia,
+            dh.NgayDat
+        FROM don_hang dh
+        INNER JOIN khach_hang kh ON dh.MaKH = kh.MaKH
+        INNER JOIN chi_tiet_dh ct ON dh.MaDH = ct.MaDH
+        INNER JOIN san_pham sp ON ct.MaSP = sp.MaSP
+        WHERE DATE(dh.NgayDat) BETWEEN '$tungay' AND '$denngay'
+        ORDER BY dh.NgayDat ASC
+    ";
+
+    $res = $this->db->query($sql);
+
+    if (!$res) {
+        die("SQL ERROR: " . $this->db->error . "<br>QUERY: " . $sql);
+    }
+
+    return $res;
+}
+
+    
+    function GetTongDoanhThu($tungay, $denngay) {
+    $sql = " SELECT SUM(ct.SoLuong * ct.DonGia) AS TongTien
+        FROM don_hang dh
+        INNER JOIN chi_tiet_dh ct ON dh.MaDH = ct.MaDH
+        WHERE DATE(dh.NgayDat) BETWEEN '$tungay' AND '$denngay' ";
+    $res = $this->db->query($sql);
+    if (!$res) {
+        die("SQL ERROR: " . $this->db->error . "<br>QUERY: " . $sql);
+    }
+    $row = $res->fetch_assoc();
+    return $row['TongTien'] ?? 0;
+}
+
 }
 ?>

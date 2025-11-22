@@ -32,7 +32,7 @@ $ListKhachHang = $ql->List_KhachHang();
             <td><?= htmlspecialchars($row['SoDienThoai']) ?></td>
             <td>
                 <?php if (!empty($row['Avatar'])): ?>
-                    <img src="../avatar/<?= htmlspecialchars($row['Avatar']) ?>" width="80" alt="Avatar">
+                    <img src="../Uploads/<?= htmlspecialchars($row['Avatar']) ?>" width="80" alt="Avatar">
                 <?php else: ?>
                     <p>Chưa có avatar</p>
                 <?php endif; ?>

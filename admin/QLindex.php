@@ -1,5 +1,6 @@
 <?php 
 session_start();
+
 if(!isset($_SESSION['admin_id'])){
     header("Location: DangNhapADM.php");
     exit();
@@ -48,6 +49,18 @@ if(!isset($_SESSION['admin_id'])){
                 case"Donhang":
                     include("order_list.php");
                     break;
+                case"taodonmoi":
+                    include("order_add.php");
+                    break;
+                case"orders_add":
+                    include("order_view.php");
+                    break;
+                case"chitietdon":
+                    include("order_view.php");
+                    break;
+                case"xoadon":   
+                    include("order_delete.php");
+                    break;
                 case"khachhang":
                     include("customer_list.php");
                     break;
@@ -61,12 +74,12 @@ if(!isset($_SESSION['admin_id'])){
                     include("customer_delete.php");
                     break;
                 case"doanhthu":
-                    include("DoanhThu_list.php");
+                    include("DoanhThu.php");
                     break;
 
 
-                case"dangxuat":
-                    include("DangXuat_QL.php");
+                case"DangXuat":
+                    include("DangXuatADM.php");
                     break;
             }
         }
@@ -74,5 +87,3 @@ if(!isset($_SESSION['admin_id'])){
 
     </div>
 </main>
-
-

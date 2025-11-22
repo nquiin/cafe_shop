@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 class DBUser {
     private $host = "localhost";
@@ -16,9 +18,13 @@ class DBUser {
         $this->db->set_charset("utf8");
     }
 
+    public function getConnection() {
+        return $this->db;
+    }
+
     public function checkLogin() {
         if (!isset($_SESSION['user_id'])) {
-            header("Location: ../user/index.php");
+            header("Location: DangNhap.php");
             exit();
         }
     }
@@ -41,13 +47,13 @@ class DBUser {
             if (password_verify($MatKhau, $row['MatKhau'])) {
                 $_SESSION['user_id'] = $row['MaKH'];
                 $_SESSION['TenKH'] = $row['TenKH'];
-                header("Location: /ltweb/tieuluan_ltrinhweb/user/index.php");
+                header("Location: /tieuluan_ltrinhweb/user/index.php");
                 exit();
             } else {
                 echo "Sai mật khẩu! <a href='DangNhap.php'>Thử lại</a>";
             }
         } else {
-            echo "⚠ Không tìm thấy tài khoản! <a href='DangKy.php'>Đăng ký ngay</a>";
+            echo "Không tìm thấy tài khoản! <a href='DangKy.php'>Đăng ký ngay</a>";
         }
     }
 
@@ -58,36 +64,35 @@ class DBUser {
 
         $check = $this->db->query("SELECT * FROM khach_hang WHERE TenKH = '$TenKH'");
         if ($check && $check->num_rows > 0) {
-            echo "⚠ Tên đăng nhập đã tồn tại! <a href='DangKy.php'>Thử lại</a>";
+            echo "Tên đăng nhập đã tồn tại! <a href='DangKy.php'>Thử lại</a>";
         } else {
             $sql = "INSERT INTO khach_hang (TenKH, Email, MatKhau) VALUES ('$TenKH', '$email', '$MatKhauHash')";
             if ($this->db->query($sql)) {
-                header("Location: DangNhap.php");
+                header("Location: user/DangNhap.php");
             } else {
-                echo " Lỗi: " . $this->db->error;
+                echo "Lỗi: " . $this->db->error;
             }
         }
     }
 
     public function getProducts() {
-        $stmt = $this->db->prepare("SELECT TenSP, Gia, HinhAnh FROM san_pham");
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->db->query("SELECT TenSP, Gia, HinhAnh FROM san_pham");
         $products = [];
-        while ($row = $result->fetch_assoc()) {
-            $products[] = $row;
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $products[] = $row;
+            }
         }
-        $stmt->close();
         return $products;
     }
 
     public function handleUpdateProfile() {
         $error = null;
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $id = $_SESSION['user_id'];
-            $tenKH = trim($_POST['TenKH']);
-            $diaChi = trim($_POST['DiaChi']);
-            $soDienThoai = trim($_POST['SoDienThoai']);
+            $id = (int)$_SESSION['user_id'];
+            $tenKH = $this->db->real_escape_string(trim($_POST['TenKH']));
+            $diaChi = $this->db->real_escape_string(trim($_POST['DiaChi']));
+            $soDienThoai = $this->db->real_escape_string(trim($_POST['SoDienThoai']));
 
             $user = $this->getCurrentUser();
             $avatar = $user['Avatar'];
@@ -113,56 +118,155 @@ class DBUser {
             }
 
             if (empty($error)) {
-                $update = $this->db->prepare("UPDATE khach_hang SET TenKH=?, DiaChi=?, SoDienThoai=?, Avatar=? WHERE MaKH=?");
-                $update->bind_param("ssssi", $tenKH, $diaChi, $soDienThoai, $avatar, $id);
-                if ($update->execute()) {
+                $sql = "UPDATE khach_hang SET TenKH='$tenKH', DiaChi='$diaChi', SoDienThoai='$soDienThoai', Avatar='$avatar' WHERE MaKH=$id";
+                if ($this->db->query($sql)) {
                     header("Location: profile.php");
                     exit();
                 } else {
                     $error = "Lỗi cập nhật: " . $this->db->error;
                 }
-                $update->close();
             }
         }
         return $error;
     }
 }
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $dbUser = new DBUser();
-    
-    if (isset($_POST['action']) && $_POST['action'] == 'login') {
+    $action = $_POST['action'] ?? null;
+    if ($action == 'login') {
         $TenKH = $_POST['TenKH'] ?? '';
         $MatKhau = $_POST['MatKhau'] ?? '';
         $dbUser->login($TenKH, $MatKhau);
+    } else if ($action == 'register') {
+        $TenKH = $_POST['TenKH'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $MatKhau = $_POST['MatKhau'] ?? '';
+        if (empty($TenKH) || empty($email) || empty($MatKhau)) {
+            echo "Vui lòng điền đầy đủ thông tin!";
+        } else {
+            $dbUser->register($TenKH, $email, $MatKhau);
+        }
     }
 }
-class Product{
-    public $host="localhost";
-    public $username="root";
-    public $password="";
-    public $dbname="cafe_shop";
+
+class Product {
+    public $host = "localhost";
+    public $username = "root";
+    public $password = "";
+    public $dbname = "cafe_shop";
     public $db;
-    function __construct(){
-       $this->db=new mysqli ($this->host,$this->username,$this->password,$this->dbname);
-       $this->db->set_charset("utf8");
-       if($this->db->connect_error>0){
-           die("kết nối thất bại: " . $this->db->connect_error);
-       }
+
+    function __construct() {
+        $this->db = new mysqli($this->host, $this->username, $this->password, $this->dbname);
+        $this->db->set_charset("utf8");
+        if ($this->db->connect_error) {
+            die("Kết nối thất bại: " . $this->db->connect_error);
+        }
     }
-    function list_san_pham(){
-        $sql="SELECT MaSP,HinhAnh,TenSP,Gia FROM san_pham";
-        $recordset=$this->db->query($sql);
-        return $recordset;
+
+    function list_san_pham() {
+        return $this->db->query("SELECT MaSP, TenSP, Gia, MoTa, HinhAnh, SoLuongTon, MaLoai FROM san_pham");
     }
-    function List_chi_tiet_san_pham($Ma_san_pham){
-        $sql="SELECT * FROM san_pham Where MaSP=$Ma_san_pham";
-        $recordset=$this->db->query($sql);
-        return $recordset;
+
+    function list_san_pham_theo_loai($MaLoai) {
+        $MaLoai = $this->db->real_escape_string($MaLoai);
+        return $this->db->query("SELECT MaSP, TenSP, Gia, MoTa, HinhAnh, SoLuongTon, MaLoai FROM san_pham WHERE MaLoai = '$MaLoai'");
     }
-    function List_SP_QL(){
-        $sql="SELECT * FROM san_pham";
-        $recordset=$this->db->query($sql);
-        return $recordset;
+
+    public function list_loai_san_pham() {
+        return $this->db->query("SELECT * FROM loai_san_pham");
+    }
+
+    public function ten_loai_SP($MaLoai) {
+        $MaLoai = (int)$MaLoai;
+        $sql = "SELECT TenLoai FROM loai_san_pham WHERE MaLoai = $MaLoai";
+        $result = $this->db->query($sql);
+        return ($row = $result->fetch_assoc()) ? $row['TenLoai'] : null;
+    }
+
+    public function list_chi_tiet_san_pham($MaSP) {
+        $MaSP = (int)$MaSP;
+        $sql = "SELECT * FROM san_pham WHERE MaSP = $MaSP";
+        $result = $this->db->query($sql);
+        return $result ? $result->fetch_assoc() : null;
+    }
+}
+
+class Cart {
+    private $db;
+
+    public function __construct() {
+        $this->db = (new Product())->db;
+    }
+
+    public function add($MaSP, $SoLuong = 1) {
+        if (!isset($_SESSION['user_id'])) {
+            return ['success' => false, 'message' => 'Vui lòng đăng nhập!'];
+        }
+
+        $MaKH = (int)$_SESSION['user_id'];
+        $MaSP = (int)$MaSP;
+        $SoLuong = (int)$SoLuong;
+
+        $check = $this->db->query("SELECT SoLuongTon FROM san_pham WHERE MaSP = $MaSP");
+        if ($check->num_rows == 0) return ['success' => false, 'message' => 'Sản phẩm không tồn tại!'];
+
+        $row = $check->fetch_assoc();
+        if ($row['SoLuongTon'] < $SoLuong) return ['success' => false, 'message' => 'Không đủ hàng!'];
+
+        $exist = $this->db->query("SELECT * FROM gio_hang WHERE MaKH = $MaKH AND MaSP = $MaSP");
+        if ($exist->num_rows > 0) {
+            $this->db->query("UPDATE gio_hang SET SoLuong = SoLuong + $SoLuong WHERE MaKH = $MaKH AND MaSP = $MaSP");
+        } else {
+            $this->db->query("INSERT INTO gio_hang (MaKH, MaSP, SoLuong) VALUES ($MaKH, $MaSP, $SoLuong)");
+        }
+
+        return ['success' => true, 'message' => 'Đã thêm vào giỏ hàng!'];
+    }
+
+    public function update($MaSP, $SoLuong) {
+        $MaKH = (int)$_SESSION['user_id'];
+        $MaSP = (int)$MaSP;
+        $SoLuong = (int)$SoLuong;
+
+        if ($SoLuong <= 0) {
+            $this->remove($MaSP);
+        } else {
+            $this->db->query("UPDATE gio_hang SET SoLuong = $SoLuong WHERE MaKH = $MaKH AND MaSP = $MaSP");
+        }
+    }
+
+    public function remove($MaSP) {
+        $MaKH = (int)$_SESSION['user_id'];
+        $MaSP = (int)$MaSP;
+        $this->db->query("DELETE FROM gio_hang WHERE MaKH = $MaKH AND MaSP = $MaSP");
+    }
+
+    public function clear() {
+        $MaKH = (int)$_SESSION['user_id'];
+        $this->db->query("DELETE FROM gio_hang WHERE MaKH = $MaKH");
+    }
+
+    public function getCart() {
+        $MaKH = (int)$_SESSION['user_id'];
+        $sql = "SELECT g.MaSP, g.SoLuong, s.TenSP, s.Gia, s.HinhAnh, s.SoLuongTon
+                FROM gio_hang g JOIN san_pham s ON g.MaSP = s.MaSP
+                WHERE g.MaKH = $MaKH";
+        $result = $this->db->query($sql);
+        $items = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) $items[] = $row;
+        }
+        return $items;
+    }
+
+    public function getTotal() {
+        $tong = 0;
+        foreach ($this->getCart() as $item) {
+            $tong += $item['Gia'] * $item['SoLuong'];
+        }
+        return $tong;
     }
 }
 ?>

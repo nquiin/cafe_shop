@@ -1,14 +1,13 @@
-<?php
-session_start();
-?>
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="auth-page">
         <div class="auth-container">
@@ -26,9 +25,13 @@ session_start();
                     <p class="link-text">
                         Chưa có tài khoản? <a href="DangKy.php">Đăng ký</a>
                     </p>
+                    <p class="link-text">
+                        Quên mật khẩu <a href="QuenMK.php">Quên mật khẩu</a>
+                    </p>
                 </form>
             </div>
         </div>
     </div>
 </body>
+
 </html>

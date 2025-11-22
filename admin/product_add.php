@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <main>
 <div class="container">
-    <h2>🛒 Thêm sản phẩm mới</h2>
+    <h2> Thêm sản phẩm mới</h2>
 
     <form action="" method="POST" enctype="multipart/form-data" class="product-form">
         <label for="HinhAnh">Hình ảnh:</label>

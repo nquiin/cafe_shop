@@ -6,7 +6,7 @@
         <li><a href="QLindex.php?key=Donhang">Quản lý đơn hàng</a></li>
         <li><a href="QLindex.php?key=khachhang">Quản lý khách hàng</a></li>
         <li><a href="QLindex.php?key=doanhthu">Quản lý doanh thu</a></li>
-        <li><a href="QLindex.php?key=dangxuat">Đăng xuất</a></li>
+        <li><a href="QLindex.php?key=DangXuat">Đăng xuất</a></li>
 
     </ul>
 </div>

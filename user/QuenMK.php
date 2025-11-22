@@ -7,18 +7,20 @@ $obj = new QL();
 $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $TenDangNhap = $_POST['TenDangNhap'] ?? '';
-    $MatKhauMoi = $_POST['MatKhauMoi'] ?? '';
+    $Email = trim($_POST['Email'] ?? "");
 
-    if (!empty($TenDangNhap) && !empty($MatKhauMoi)) {
-        $result = $obj->updatePassword($TenDangNhap, $MatKhauMoi);
-        if ($result) {
-            $message = " Đổi mật khẩu thành công! <a href='DangNhapADM.php'>Đăng nhập ngay</a>";
+    if ($Email != "") {
+        $admin = $obj->Check_Email_Admin($Email);
+
+        if ($admin) {
+            $_SESSION['reset_email'] = $Email;
+            header("Location: CapNhatMK.php");
+            exit();
         } else {
-            $message = " Không tìm thấy tài khoản này!";
+            $message = "❌ Email không tồn tại trong hệ thống!";
         }
     } else {
-        $message = "Vui lòng nhập đủ thông tin!";
+        $message = "⚠ Vui lòng nhập email!";
     }
 }
 ?>
@@ -27,27 +29,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quên mật khẩu</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
+
     <div class="auth-page">
         <div class="auth-container">
             <h2>Quên mật khẩu</h2>
+
             <div class="auth-box">
-                <?php if (!empty($message)) echo "<p class='msg'>$message</p>"; ?>
-                <form method="POST" action="">
-                    <div class="form-group">
-                        <input type="text" name="Email" placeholder="Email" required>
-                    </div>
+                <?php if ($message) echo "<p class='msg'>$message</p>"; ?>
+                <div class="form-group">
+                <form method="POST">
+                    <input type="email" name="Email" placeholder="Nhập Email của bạn" required>
                     <button type="submit" class="btn">Gửi yêu cầu</button>
                 </form>
-                <p><a href="DangNhap.php">Quay lại đăng nhập</a></p>
+                </div>
+                <p class="link-text"><a href="DangNhap.php">Quay lại đăng nhập</a></p>
             </div>
         </div>
     </div>
+
 </body>
 
 </html>

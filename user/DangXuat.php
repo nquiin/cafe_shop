@@ -1,9 +1,5 @@
 <?php
-session_start();
-
-// Xóa toàn bộ session
-session_unset(); // Xóa tất cả biến session
-session_destroy(); // Hủy session hiện tại
-
-header("Location: DangNhap.php");
+session_unset(); 
+session_destroy();
+header("Location: index.php");
 exit();

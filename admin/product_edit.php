@@ -8,10 +8,8 @@ $MaSP = $_GET['MaSP'] ?? 0;
 if ($MaSP <= 0) {
     die("Mã sản phẩm không hợp lệ");
 }
+$sp = $ql -> Get_SP_By_MaSP($MaSP);
 
-$sql = "SELECT * FROM san_pham WHERE MaSP = $MaSP";
-$result = mysqli_query($ql->db, $sql);
-$sp = mysqli_fetch_assoc($result);
 
 if (!$sp) {
     die("Không tìm thấy sản phẩm có mã $MaSP");
